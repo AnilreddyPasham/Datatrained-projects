@@ -1,0 +1,279 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
+import pandas as pd
+
+
+# In[2]:
+
+
+data = pd.read_csv("D:\worksheets\DSData\happiness_score_dataset.csv")
+
+
+# In[3]:
+
+
+data
+
+
+# In[4]:
+
+
+data.columns
+
+
+# In[5]:
+
+
+data.isnull().sum()
+
+
+# In[6]:
+
+
+import seaborn as sns
+
+
+# In[7]:
+
+
+sns.scatterplot(x='Economy (GDP per Capita)',y='Dystopia Residual', data=data)
+
+
+# In[8]:
+
+
+sns.scatterplot(x='Family',y='Dystopia Residual', data=data)
+
+
+# In[9]:
+
+
+sns.scatterplot(x='Health (Life Expectancy)',y='Dystopia Residual', data=data)
+
+
+# In[10]:
+
+
+sns.scatterplot(x='Freedom',y='Dystopia Residual', data=data)
+
+
+# In[11]:
+
+
+sns.scatterplot(x='Trust (Government Corruption)',y='Dystopia Residual', data=data)
+
+
+# In[12]:
+
+
+sns.scatterplot(x='Generosity',y='Dystopia Residual', data=data)
+
+
+# In[13]:
+
+
+data.corr()
+
+
+# In[14]:
+
+
+import matplotlib.pyplot as plt
+plt.figure(figsize=(15,5))
+sns.heatmap(data.corr(), annot=True, linewidths=0.5, linecolor='black', fmt='.2f')
+
+
+# In[15]:
+
+
+data.describe
+
+
+# In[16]:
+
+
+plt.figure(figsize=(15,12))
+sns.heatmap(round(data.describe()[1:].transpose(),2),linewidth=2,annot=True, fmt='f')
+plt.xticks(fontsize=18)
+plt.yticks(fontsize=12)
+plt.title("summary")
+plt.show
+
+
+# In[17]:
+
+
+data.info()
+
+
+# In[18]:
+
+
+data.drop(['Country','Region','Happiness Rank'],axis=1,inplace=True)
+
+
+# In[19]:
+
+
+data
+
+
+# In[20]:
+
+
+collist=data.columns.values
+ncol=30
+nrows=14
+plt.figure(figsize=(ncol,3*ncol))
+for i in range (0,len(collist)):
+    plt.subplot(nrows,ncol,i+1)
+    sns.boxplot(data[collist[i]],color='green')
+    plt.tight_layout()
+
+
+# In[21]:
+
+
+data.skew()
+
+
+# In[22]:
+
+
+sns.distplot(data['Happiness Score'])
+
+
+# In[23]:
+
+
+sns.distplot(data['Standard Error'])
+
+
+# In[24]:
+
+
+sns.distplot(data['Economy (GDP per Capita)'])
+
+
+# In[25]:
+
+
+sns.distplot(data['Family'])
+
+
+# In[26]:
+
+
+sns.distplot(data['Health (Life Expectancy)'])
+
+
+# In[27]:
+
+
+sns.distplot(data['Freedom'])
+
+
+# In[28]:
+
+
+sns.distplot(data['Trust (Government Corruption)'])
+
+
+# In[29]:
+
+
+sns.distplot(data['Generosity'])
+
+
+# In[30]:
+
+
+sns.distplot(data['Dystopia Residual'])
+
+
+# In[31]:
+
+
+data.drop(['Happiness Score'],axis=1,inplace=True)
+
+
+# In[32]:
+
+
+data
+
+
+# In[34]:
+
+
+from scipy.stats import zscore
+import numpy as np
+z=np.abs(zscore(data))
+z.shape
+
+
+# In[35]:
+
+
+threshold=3
+print(np.where(z>3))
+
+
+# In[36]:
+
+
+data_new = data[(z<3).all(axis=1)]
+print(data.shape)
+print(data_new.shape)
+
+
+# In[39]:
+
+
+loss_percentage = (158-149)/158*100
+
+
+# In[40]:
+
+
+loss_percentage
+
+
+# In[41]:
+
+
+x=data_new.iloc[:,:-1]
+y=data_new.iloc[:,-1]
+
+
+# In[42]:
+
+
+from sklearn.preprocessing import power_transform
+x=power_transform(x,method='yeo-johnson')
+
+
+# In[43]:
+
+
+x
+
+
+# In[50]:
+
+
+from sklearn.preprocessing import StandardScaler
+sc = StandardScaler()
+x=sc.fit_transform(x)
+x
+
+
+# In[ ]:
+
+
+
+

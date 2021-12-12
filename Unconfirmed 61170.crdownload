@@ -1,0 +1,211 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[6]:
+
+
+import pandas as pd
+
+
+# In[7]:
+
+
+data = pd.read_csv("D:\worksheets\dataset1\mushrooms.csv")
+
+
+# In[8]:
+
+
+data
+
+
+# In[ ]:
+
+
+count = df['class'].value_counts()
+sns.set_context(font_scale=1.5)
+plt.figure(figsize=(8,7))
+sns.barplot(count.index, count.values, alpha=0.8, palette="bwr")
+plt.ylabel('Count')
+plt.xlabel('Class')
+plt.title('Number of poisonous/edible mushrooms')
+#plt.savefig("count.jpeg", format='jpeg', dpi=300)
+plt.show()
+
+
+# In[9]:
+
+
+data.columns
+
+
+# In[10]:
+
+
+data.isnull().sum()
+
+
+# In[48]:
+
+
+count = data['class'].value_counts()
+sns.set_context(font_scale=1.5)
+plt.figure(figsize=(8,7))
+sns.barplot(count.index, count.values, alpha=0.8, palette="bwr")
+plt.ylabel('Count')
+plt.xlabel('Class')
+plt.title('Number of poisonous/edible mushrooms')
+plt.show()
+
+
+# In[50]:
+
+
+data['class'].value_counts()
+
+
+# In[51]:
+
+
+data.shape
+
+
+# In[52]:
+
+
+X = data.drop(['class'], axis=1)  
+y = data["class"]
+
+X.head()
+
+
+# In[54]:
+
+
+from sklearn.preprocessing import LabelEncoder
+
+
+# In[55]:
+
+
+labelencoder_x=LabelEncoder()
+for column in X.columns:
+    X[column] = labelencoder_x.fit_transform(X[column])
+    
+labelencoder_y=LabelEncoder()
+y = labelencoder_y.fit_transform(y)
+
+
+# In[56]:
+
+
+X.head()
+
+
+# In[58]:
+
+
+y
+
+
+# In[59]:
+
+
+X=pd.get_dummies(X,columns=X.columns,drop_first=True)
+X.head()
+
+
+# In[69]:
+
+
+plt.figure(figsize=(16,12))
+sns.heatmap(X.corr(),linewidths=.0,cmap="Reds")
+plt.yticks(rotation=0);
+
+
+# In[71]:
+
+
+from sklearn.model_selection import train_test_split
+
+
+# In[72]:
+
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=40)
+
+
+# In[73]:
+
+
+from sklearn.preprocessing import StandardScaler
+sc = StandardScaler()
+sc.fit(X_train)
+X2 = sc.fit_transform(X)
+X_test = sc.transform(X_test)
+
+
+# In[74]:
+
+
+X_train, X_test, y_train, y_test = train_test_split(X2, y, test_size=0.3, random_state=40)
+
+
+# In[75]:
+
+
+from sklearn.decomposition import PCA
+pca = PCA(n_components=2)
+X_train_pca=pca.fit_transform(X_train) 
+X_test_pca=pca.transform(X_test)
+print("Original shape:",X_train.shape)
+print('Shape of PCA data:',X_train_pca.shape)
+
+
+# In[76]:
+
+
+plt.scatter(X_train_pca[:, 0], X_train_pca[:, 1], alpha=0.2)
+
+
+# In[77]:
+
+
+from sklearn.linear_model import LogisticRegression
+lr = LogisticRegression()
+lr.fit(X_train_pca,y_train)
+
+
+# In[81]:
+
+
+from sklearn.metrics import classification_report, confusion_matrix, roc_curve, roc_auc_score, accuracy_score
+from sklearn.model_selection import cross_val_predict, cross_val_score
+
+
+# In[82]:
+
+
+print("TRAINING RESULTS:\n")
+print('Accuracy Score: {0:.4f}\n'.format(accuracy_score(y_train,lr.predict(X_train_pca))))
+print('Classification Report:\n{}\n'.format(classification_report(y_train,lr.predict(X_train_pca))))
+print('Confusion Matrix:\n{}\n'.format(confusion_matrix(y_train,lr.predict(X_train_pca))))
+res = cross_val_score(lr, X_train_pca, y_train, cv=10, n_jobs=-1, scoring='accuracy')
+print('Average Accuracy:\t{0:.4f}\n'.format((res.mean())))
+print('Standard Deviation:\t{0:.4f}'.format(res.std()))
+
+
+# In[83]:
+
+
+print("TEST RESULTS:\n")
+print('Accuracy Score: {0:.4f}\n'.format(accuracy_score(y_test,lr.predict(X_test_pca))))
+print('Classification Report:\n{}\n'.format(classification_report(y_test,lr.predict(X_test_pca))))
+print('Confusion Matrix:\n{}\n'.format(confusion_matrix(y_test,lr.predict(X_test_pca))))
+
+
+# In[ ]:
+
+
+
+
